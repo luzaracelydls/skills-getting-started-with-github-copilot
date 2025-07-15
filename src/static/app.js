@@ -6,39 +6,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Function to fetch activities from API
   async function fetchActivities() {
-    try {
-      const response = await fetch("/activities");
-      const activities = await response.json();
+    const resp = await fetch("/activities");
+    const activities = await resp.json();
+    const list = document.getElementById("activities-list");
+    list.innerHTML = "";
+    const select = document.getElementById("activity-select");
+    select.innerHTML = "";
+    Object.entries(activities).forEach(([name, info]) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${name}</strong>: ${info.description}<br>
+            <em>${info.schedule}</em><br>
+            Participants (${info.participants.length}/${info.max_participants}): ${info.participants.join(
+              ", "
+            )}`;
+      list.appendChild(li);
 
-      // Clear loading message
-      activitiesList.innerHTML = "";
-
-      // Populate activities list
-      Object.entries(activities).forEach(([name, details]) => {
-        const activityCard = document.createElement("div");
-        activityCard.className = "activity-card";
-
-        const spotsLeft = details.max_participants - details.participants.length;
-
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-        `;
-
-        activitiesList.appendChild(activityCard);
-
-        // Add option to select dropdown
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        activitySelect.appendChild(option);
-      });
-    } catch (error) {
-      activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
-      console.error("Error fetching activities:", error);
-    }
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    });
   }
 
   // Handle form submission
